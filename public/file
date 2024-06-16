@@ -1,0 +1,62 @@
+import React, { useState } from "react";
+
+const App = () => {
+  const [query, setQuery] = useState("");
+  const [books, setBooks] = useState([]);
+
+  const searchBooks = async () => {
+    const response = await fetch(`https://gutendex.com/books?search=${query}`);
+    const data = await response.json();
+    setBooks(data.results);
+    console.log(data.results)
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    searchBooks();
+  };
+
+  return (
+    <div>
+      <h1>Gutenberg Book Search</h1>
+      <form onSubmit={handleSearch}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for books..."
+        />
+        <button type="submit">Search</button>
+      </form>
+      <div>
+        {books.length > 0 && (
+          <ul>
+            {books.map((book) => (
+              <li key={book.id}>
+                {book.title} by{" "}
+                {book.authors.map((author) => author.name).join(", ")}
+                <a
+                  href={book.formats["text/html"]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read Live
+                </a>
+                {book.formats["application/pdf"] && (
+                  <a
+                    href={book.formats["application/pdf"]}
+                    download={`${book.title}.pdf`}
+                  >
+                    Download PDF
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;
